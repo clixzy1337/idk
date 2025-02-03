@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>21 Showdown Card Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding-top: 50px;
+        }
+        .card {
+            display: inline-block;
+            width: 50px;
+            height: 75px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 20px;
+            text-align: center;
+            line-height: 75px;
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .score {
+            font-size: 20px;
+            margin: 10px;
+        }
+        .game-over {
+            color: red;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>21 Showdown</h1>
+    <p class="score">Your score: <span id="score">0</span></p>
+    <div id="hand"></div>
+    <button class="button" id="draw">Draw Card</button>
+    <button class="button" id="stay">Stay</button>
+    <p id="message"></p>
+</div>
+
+<script>
+    const cardValues = {
+        '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
+        'J': 10, 'Q': 10, 'K': 10, 'A': [1, 11]
+    };
+
+    let score = 0;
+    let hand = [];
+    let gameOver = false;
+
+    // Elements
+    const scoreElement = document.getElementById('score');
+    const handElement = document.getElementById('hand');
+    const messageElement = document.getElementById('message');
+    const drawButton = document.getElementById('draw');
+    const stayButton = document.getElementById('stay');
+
+    function getRandomCard() {
+        const cards = Object.keys(cardValues);
+        const randomCard = cards[Math.floor(Math.random() * cards.length)];
+        return randomCard;
+    }
+
+    function updateScore() {
+        let total = 0;
+        let aceCount = 0;
+
+        // Calculate score
+        hand.forEach(card => {
+            if (card === 'A') aceCount++;
+            else total += cardValues[card];
+        });
+
+        // Handle aces as either 1 or 11
+        while (aceCount > 0) {
+            if (total + 11 <= 21) total += 11;
+            else total += 1;
+            aceCount--;
+        }
+
+        score = total;
+        scoreElement.textContent = score;
+    }
+
+    function displayHand() {
+        handElement.innerHTML = '';
+        hand.forEach(card => {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'card';
+            cardDiv.textContent = card;
+            handElement.appendChild(cardDiv);
+        });
+    }
+
+    function checkGameOver() {
+        if (score > 21) {
+            messageElement.textContent = 'You bust! Game Over!';
+            messageElement.classList.add('game-over');
+            gameOver = true;
+        } else if (score === 21) {
+            messageElement.textContent = 'You hit 21! You win!';
+            messageElement.classList.add('game-over');
+            gameOver = true;
+        }
+    }
+
+    drawButton.addEventListener('click', () => {
+        if (gameOver) return;
+
+        const card = getRandomCard();
+        hand.push(card);
+        updateScore();
+        displayHand();
+        checkGameOver();
+    });
+
+    stayButton.addEventListener('click', () => {
+        if (gameOver) return;
+        messageElement.textContent = 'You decided to stay! Your final score: ' + score;
+    });
+</script>
+
+</body>
+</html>
